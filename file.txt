@@ -1,0 +1,61 @@
+set pagesize x y - wielkość kartki w pikselach (1 na projekt)
+set pensize x - wielkość długopisu
+set pencolor x - kolor długopisu
+set penshape x - kształtu długopisu
+set penposition x y - pozycja długopis
+set penup - podniesienie długopisu
+set pendown - opuszczenie długopisu
+move x y - przesuniecie o x y
+
+przykładowy kod
+
+set pagesize 800 500
+
+funcS square1010
+move 10 0
+move 0 10
+move -10 0
+move 0 -10
+funcE rectangle
+
+funcS rectangle a b color
+set pencolor color
+set pendown
+move a 0
+move 0 b
+move -a 0
+move 0 -b
+funcE rectangle
+
+set penposition x y
+call rectangle
+
+tokens {
+ "breakline": '\n',
+ "digit": '[0-9]',
+ "text": '"[a-zA-Z0-9]+"',
+ "number": '-?digit+',
+ "idenrifier": '[a-zA-Z]+',
+ "reverse": '-idenrifier',
+ "set": 'set',
+ "pagesize": 'pagesize',
+ "pensize": 'pensize',
+ "pencolor": 'pencolor',
+ "penshape": 'penshape',
+ "penup": 'penup',
+ "pendown": 'pendown',
+ "move": 'move',
+ "call": 'call',
+ "funcStart": 'funcS',
+ "funcEnd": 'funcE',
+}
+G = <tokens,{N,S,A,X,T,C,V},P,N>
+P = {
+ N -> pagesize X X breakline S,
+ S -> set A breakline S | move X X breakline S | funcS idenrifier C S breakline funcE idenrifier breakline S| call idenrifier V S | pusty,
+ A -> pensize X | pencolor T | penshape T | penposition X X | penup | pendown,
+ X -> number | idenrifier | reverse,
+ T -> idenrifier | text,
+ C -> idenrifier C | breakline,
+ V -> number V | idenrifier V | reverse V | text V | breakline,
+}

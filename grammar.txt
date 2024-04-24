@@ -1,0 +1,109 @@
+grammar PenMotion;
+
+PROGRAM
+    : (LINE? BREAKLINE+)+
+    ;
+
+LINE
+    : COMMAND COMMENT?
+    | COMMENT?
+    ;
+
+COMMAND
+    : SET
+    | MOVE
+    | CALL
+    | FUNCTION
+    | SAVE
+    ;
+
+SAVE
+    : 'save' STRING'.'STRING
+    ;
+
+FUNCTION
+    :   FUNCTION_START FUNCTION_BLOCK FUNCTION_END
+    ;
+
+SET
+    : 'set' SET_FUN
+    ;
+
+SET_FUN
+    : 'pagesize' (POSITIVE_NUMBER | POSITIVE_NUMBER ' ' POSITIVE_NUMBER)
+    | 'penposition' POSITIVE_NUMBER ' ' POSITIVE_NUMBER
+    | 'pensize' POSITIVE_NUMBER
+    | 'penshape' ('circle'|'square')
+    | 'penup'
+    | 'pencolor' STRING
+    | 'pendown'
+    ;
+
+MOVE
+    : 'move' INT ' ' INT
+    ;
+
+CALL
+    : 'call' ID (CALL_ARG)*
+    ;
+
+FUNCTION_START
+    : 'funcS' ID FUNCTION_ARGS
+    ;
+
+FUNCTION_ARGS
+    : ID*
+    ;
+
+FUNCTION_BLOCK
+    :   (FUNCTION_LINE? BREAKLINE+)+
+    ;
+
+FUNCTION_LINE
+    : SET
+    | MOVE
+    | CALL
+    ;
+
+FUNCTION_END
+    : 'funcE'
+    ;
+
+CALL_ARG
+    : ID
+    | ID_REVERSE
+    | INT
+    | STRING
+    ;
+
+ID_REVERSE
+    : '-'?ID
+    ;
+
+ID
+    : '_'?[a-zA-Z][a-zA-Z0-9_\-]*
+    ;
+
+STRING
+    : '"' (~('"' | '#'))* '"'
+    ;
+
+INT
+    : '-'?POSITIVE_NUMBER
+    ;
+
+POSITIVE_NUMBER
+    : [0-9]+
+    ;
+
+COMMENT
+    : '#' ~ [\r\n]*
+    ;
+
+BREAKLINE
+    : ['\n']+
+    ;
+
+WS
+    : [\t\r\n]+ -> skip
+    ;
