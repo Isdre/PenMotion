@@ -19,36 +19,11 @@ command
     ;
 
 save
-    : 'save' string
+    : 'save' (STRING|ID)
     ;
 
 function
     : function_start function_block
-    ;
-
-pagesize
-    : 'pagesize' POSITIVE_NUMBER POSITIVE_NUMBER
-    ;
-
-set
-    : 'set' set_fun
-    ;
-
-set_fun
-    : 'penposition' POSITIVE_NUMBER POSITIVE_NUMBER
-    | 'pensize' POSITIVE_NUMBER
-    | 'penshape' string
-    | 'penup'
-    | 'pencolor' string
-    | 'pendown'
-    ;
-
-move
-    : 'move' INT INT
-    ;
-
-call
-    : 'call' ID call_arg*
     ;
 
 function_start
@@ -79,11 +54,36 @@ function_end
     : 'funcE'
     ;
 
+pagesize
+    : 'pagesize' INT INT
+    ;
+
+set
+    : 'set' set_fun
+    ;
+
+set_fun
+    : 'penposition' (INT|ID|ID_REVERSE) (INT|ID|ID_REVERSE)
+    | 'pensize' (INT|ID|ID_REVERSE)
+    | 'penshape' (STRING|ID)
+    | 'pencolor' (STRING|ID)
+    | 'penup'
+    | 'pendown'
+    ;
+
+move
+    : 'move' (INT|ID|ID_REVERSE) (INT|ID|ID_REVERSE)
+    ;
+
+call
+    : 'call' ID call_arg*
+    ;
+
 call_arg
     : ID
     | ID_REVERSE
     | INT
-    | string
+    | STRING
     ;
 
 comment
@@ -95,24 +95,21 @@ ID_REVERSE
     ;
 
 ID
-    : '_'?[a-zA-Z][a-zA-Z0-9_\-]*
-    ;
-
-string
-    : '"' STRING '"'
-    ;
-
-STRING
-    : (~('"' | '#'))*
+    : '_'? [a-zA-Z] [a-zA-Z0-9_\-]*
     ;
 
 INT
-    : '-'? POSITIVE_NUMBER
+    : '-'? NUMBER
     ;
 
-POSITIVE_NUMBER
+NUMBER
     : [0-9]+
     ;
+
+STRING
+    : '"' (~('"'))* '"'
+    ;
+
 
 COMMENT
     : '#' ~ [\r\n]*
