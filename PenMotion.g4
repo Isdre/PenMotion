@@ -35,7 +35,7 @@ function_args
     ;
 
 function_block
-    : (function_line? EOL)+ function_line? EOL function_end
+    : (function_line? EOL)+ function_end
     ;
 
 function_line
@@ -121,5 +121,5 @@ EOL
 
 
 WS
-    : [ \t\r\n]+ -> skip
+    : [ \t]+ -> skip
     ;
