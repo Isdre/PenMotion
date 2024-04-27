@@ -35,15 +35,15 @@ funcS rectangle a b color
     move a 0
     move 0 b
     move -a 0
-
-
-
     move 0 -b
+
+    move 50 0
 
     call square1010
 
 funcE
 
 set penposition x y
-call rectangle 30 30 "#FFFFFF"
+repeat 20 call rectangle 30 30 "#FFFFFF"
+
 save "obraz.jpg"

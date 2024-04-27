@@ -10,12 +10,8 @@ line
     ;
 
 command
-    : pagesize
-    | function
-    | set
-    | move
-    | call
-    | save
+    : function
+    | function_command
     ;
 
 save
@@ -45,9 +41,12 @@ function_line
 
 function_command
     : set
+    | pagesize
     | move
     | call
     | save
+    | repeat
+    | clear
     ;
 
 function_end
@@ -73,6 +72,14 @@ set_fun
 
 move
     : 'move' (INT|ID|ID_REVERSE) (INT|ID|ID_REVERSE)
+    ;
+
+repeat
+    : 'repeat' INT function_command
+    ;
+
+clear
+    : 'clear'
     ;
 
 call
