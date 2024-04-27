@@ -1,0 +1,29 @@
+pagesize 800 500
+
+# funkcja bez argumentow
+
+funcS square1010
+set penshape "circle"
+set penshape "square"
+set penup
+set pendown
+move 10 0
+move 0 10
+move -10 0
+move 0 -10
+funcE rectangle
+call square1010
+# funkcja z argumentami
+call square1010
+funcS rectangle a b color
+set pencolor color
+set pendown
+move a 0
+move 0 b
+move -a 0
+move 0 -b
+funcE rectangle
+set penposition x y
+call square1010
+call rectangle 30 30 "#FFFFFF"
+save "obraz.jpg"
