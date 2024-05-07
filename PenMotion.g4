@@ -41,6 +41,7 @@ function_line
 
 function_command
     : set
+    | home
     | pagesize
     | move
     | call
@@ -59,6 +60,10 @@ pagesize
 
 set
     : 'set' set_fun
+    ;
+
+home
+    : 'home'
     ;
 
 set_fun
