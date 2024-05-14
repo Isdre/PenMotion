@@ -1,5 +1,5 @@
-from.definitions.PenMotionParser import PenMotionParser
-from definitions.PenMotionVisitor import PenMotionVisitor
+from PenMotion.definitions.PenMotionParser import PenMotionParser
+from PenMotionVisitor import PenMotionVisitor
 
 from turtle import Turtle
 

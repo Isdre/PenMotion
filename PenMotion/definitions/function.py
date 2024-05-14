@@ -49,3 +49,6 @@ class Function_:
                 raise Exception(
                     f"Wrong type of argument {i} for function '{self.name}'. Expected {arg_type[0]}, got {type(arg)}.")
         return True
+
+class BuildFunction_(Function_):
+    pass

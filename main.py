@@ -3,7 +3,7 @@ from antlr4 import *
 
 from PenMotion.definitions.PenMotionLexer import PenMotionLexer
 from PenMotion.definitions.PenMotionParser import PenMotionParser
-from PenMotion.definitions.PenMotionVisitor import PenMotionVisitor
+from PenMotion.definitions.PenVisitor import PenVisitor
 
 
 
@@ -21,10 +21,10 @@ def main(argv):
     if parser.getNumberOfSyntaxErrors() > 0:
         print("syntax errors")
     else:
-        vinterp = PenMotionVisitor()
+        vinterp = PenVisitor()
         vinterp.visit(tree)
 
 if __name__ == '__main__':
     main(sys.argv)
 
-#antlr4 -Dlanguage=Python3 .\PenMotion.g4 -visitor -o PenMotion
+#antlr4 -Dlanguage=Python3 .\PenMotion.g4 -visitor -o PenMotion/definitions
