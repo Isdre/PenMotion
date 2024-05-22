@@ -19,7 +19,7 @@ save
     ;
 
 function
-    : function_start function_block
+    : function_start function_block function_end
     ;
 
 function_start
@@ -31,7 +31,7 @@ function_args
     ;
 
 function_block
-    : (function_line? EOL)+ function_end
+    : (function_line? EOL)+
     ;
 
 function_line

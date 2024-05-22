@@ -27,4 +27,4 @@ def main(argv):
 if __name__ == '__main__':
     main(sys.argv)
 
-#antlr4 -Dlanguage=Python3 .\PenMotion.g4 -visitor -o PenMotion/definitions
+#antlr4 -Dlanguage=Python3 .\PenMotion.g4 -visitor -o PenMotion/definitions/antlr

@@ -23,12 +23,9 @@ class Function_:
 
         raise Exception(f"Wrong input for function '{self.name}'.")
 
-    # def _add_vars_to_scope(self, *args):
-    #     for arg, arg_type in zip(args, self.args):
-    #         self.scope[arg_type[0]] = Variable_(arg_type[0], arg_type[1], arg)
-
-    def is_void_type(self):
-        return self.return_type == "void"
+    def _add_vars_to_scope(self, *args):
+        for arg, arg_type in zip(args, self.args):
+            self.scope[arg_type[0]] = Variable_(arg_type[0], arg_type[1], arg)
 
     def _add_vars_to_scope(self, *args):
         for arg, arg_type in zip(args, self.args):
