@@ -19,11 +19,7 @@ save
     ;
 
 function
-    : function_start function_block function_end
-    ;
-
-function_start
-    : 'funcS' ID function_args EOL
+    : 'funcS' ID function_args EOL function_block 'funcE'
     ;
 
 function_args
@@ -48,10 +44,6 @@ function_command
     | save
     | repeat
     | clear
-    ;
-
-function_end
-    : 'funcE'
     ;
 
 pagesize
