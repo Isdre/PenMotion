@@ -1,7 +1,9 @@
 from turtle import Screen
 from turtle import Turtle
 
+import sys
 import pyautogui
+
 from PenMotion.definitions.antlr.PenMotionParser import PenMotionParser
 from PenMotion.definitions.antlr.PenMotionVisitor import PenMotionVisitor
 from PenMotion.definitions.debugger import debug
@@ -23,6 +25,7 @@ class PenVisitor(PenMotionVisitor):
         self.functions = {}
         self.arg_dict = {}
         self.scope = []
+        sys.tracebacklimit = 0
         debug.log("Started the PenMotion interpreter")
 
     def checkIfIsIdentifier(self, identifier:str) -> bool:
