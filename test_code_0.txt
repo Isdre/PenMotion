@@ -4,7 +4,7 @@ set penposition 0 0 #sadsadasdasdas
 funcS square
 set pencolor "black"
 set pendown
-set pensize 5
+set pensize 1
 move 50 0
 move 0 50
 move -50 0
@@ -24,6 +24,10 @@ move -a 0
 move 0 -b
 funcE
 
+set penposition 50 50
+
 call rectangle 100 50 "red"
+
+
 
 save "test_0.png"

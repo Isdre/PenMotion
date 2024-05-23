@@ -3,27 +3,40 @@ import tkinter as tk
 
 from PenMotion.definitions.antlr.PenMotionParser import PenMotionParser
 from PenMotion.definitions.antlr.PenMotionVisitor import PenMotionVisitor
-
+from PenMotion.definitions.debugger import debug
+from PenMotion.definitions.exceptions.exception import PenMotionException
 import os
 
 from turtle import Turtle
+from turtle import Screen
 
 class PenVisitor(PenMotionVisitor):
     def __init__(self,):
         self.pen = Turtle()
+        sc = Screen()
+        sc.mode('world')
         self.pen.hideturtle()
+        self.pen.shapesize(stretch_wid=None, stretch_len=None, outline=None)
         self.pen.speed(0)
-        self.pen.getscreen().setworldcoordinates(0, 0, 800, 800)
+        self.pen.penup()
+        self.pen.goto(-1, -1)
+        self.pen.pendown()
+        self.pen.getscreen().setworldcoordinates(0, 0, 300, 300)
         self.functions = {}
         self.arg_dict = {}
-        self.inFunction = False
+        self.scope = []
 
     def checkIfIsIdentifier(self, identifier:str) -> bool:
-        if identifier in self.arg_dict.keys():
-            return self.arg_dict[identifier]
-        elif identifier[1:] in self.arg_dict.keys() and identifier[0] == '-':
-            return str(-1 * int(self.arg_dict[identifier[1:]]))
-        return None
+        x = None
+        for s in reversed(self.scope):
+            if identifier in self.arg_dict[s].keys():
+                x = self.arg_dict[s][identifier]
+            elif identifier[1:] in self.arg_dict[s].keys() and identifier[0] == '-':
+                x = str(-1 * int(self.arg_dict[s][identifier[1:]]))
+
+            if x is not None: break
+        return x
+
     # Visit a parse tree produced by PenMotionParser#program.
     def visitProgram(self, ctx:PenMotionParser.ProgramContext):
         return self.visitChildren(ctx)
@@ -31,29 +44,33 @@ class PenVisitor(PenMotionVisitor):
 
     # Visit a parse tree produced by PenMotionParser#line.
     def visitLine(self, ctx:PenMotionParser.LineContext):
-        self.inFunction = False
         return self.visitChildren(ctx)
 
     # Visit a parse tree produced by PenMotionParser#save.
     def visitSave(self, ctx: PenMotionParser.SaveContext):
         filename = ctx.getChild(1).getText()  # get the filename
         cv = self.pen.getscreen().getcanvas()  # get the turtle's canvas
-        if self.inFunction:
+        if len(self.scope) != 0:
             v = self.checkIfIsIdentifier(filename)
             if v is not None:
                 filename = v
 
-        # get the coordinates of the turtle window
-        x = cv.winfo_rootx()
-        y = cv.winfo_rooty()
-        x1 = x + cv.winfo_width()
-        y1 = y + cv.winfo_height()
+        try:
+            # get the coordinates of the turtle window
+            x = cv.winfo_rootx()
+            y = cv.winfo_rooty()
+            x1 = x + cv.winfo_width()
+            y1 = y + cv.winfo_height()
 
-        # take a screenshot of the turtle window
-        img = pyautogui.screenshot(region=(x, y, x1 - x, y1 - y))
+            # take a screenshot of the turtle window
+            img = pyautogui.screenshot(region=(x, y, x1 - x, y1 - y))
 
-        # save the screenshot as a PNG file
-        img.save(filename.strip('"'))  # replace with '.jpg' for JPG format
+            # save the screenshot as a PNG file
+            img.save(filename.strip('"'))  # replace with '.jpg' for JPG format
+            debug.log(f"Saved as {filename}")
+        except Exception as e:
+            raise PenMotionException(f"Error saving the file: {e}")
+
 
     # Visit a parse tree produced by PenMotionParser#function.
     def visitFunction(self, ctx: PenMotionParser.FunctionContext):
@@ -62,6 +79,7 @@ class PenVisitor(PenMotionVisitor):
         function_args = [arg.getText() for arg in function_args_ctx.identifier()] if function_args_ctx else []  # get the function arguments
         block = ctx.function_block() # get the function commands
         self.functions[function_name] = (function_args, block)  # store the function arguments and commands
+        self.arg_dict[function_name] = None
 
     # Visit a parse tree produced by PenMotionParser#call.
     def visitCall(self, ctx: PenMotionParser.CallContext):
@@ -72,23 +90,30 @@ class PenVisitor(PenMotionVisitor):
             call_args = [
                 arg.getText() if not isinstance(arg, PenMotionParser.IdentifierContext) else self.arg_dict[arg.getText()] for
                 arg in call_args_ctx]  # resolve the call arguments
-            self.arg_dict = dict(zip(function_args, call_args))  # create a dictionary of argument values
-            self.inFunction = True
-            self.visitChildren(block)  # visit the command with the argument values
+            self.scope.append(function_name)  # add the function name to the scope
+            self.arg_dict[function_name] = dict(zip(function_args, call_args)) # create a dictionary of argument values
+            self.visitChildren(block)  # visit the command with the argument value
+            self.scope.pop(-1)
+            self.arg_dict[function_name] = None
+        else:
+            raise PenMotionException(f"Function '{function_name}' not defined")
 
     # Visit a parse tree produced by PenMotionParser#pagesize.
     def visitPagesize(self, ctx:PenMotionParser.PagesizeContext):
         width = ctx.getChild(1).getText()  # get the width
         height = ctx.getChild(2).getText()  # get the height
-        if self.inFunction:
+        if len(self.scope) != 0:
             w = self.checkIfIsIdentifier(width)
             h = self.checkIfIsIdentifier(height)
             if w is not None:
                 width = w
             if h is not None:
                 height = h
-        self.pen.getscreen().screensize(int(width), int(height))
-        self.pen.getscreen().setworldcoordinates(0, 0, int(width), int(height))
+        try:
+            self.pen.getscreen().screensize(int(width), int(height))
+            self.pen.getscreen().setworldcoordinates(0, 0, int(width), int(height))
+        except:
+            raise PenMotionException(f"Couldn't set the page size to {width} x {height}")
 
     # Visit a parse tree produced by PenMotionParser#set.
     def visitSet(self, ctx: PenMotionParser.SetContext):
@@ -100,37 +125,53 @@ class PenVisitor(PenMotionVisitor):
             case 'penposition':
                 x = ctx.getChild(1).getText() # get the x-coordinate
                 y = ctx.getChild(2).getText()  # get the y-coordinate
-                if self.inFunction:
+                if len(self.scope) != 0:
                     v = self.checkIfIsIdentifier(x)
                     if v is not None:
                         x = v
                     v = self.checkIfIsIdentifier(y)
                     if v is not None:
                         y = v
-                self.pen.penup()
-                self.pen.goto(int(x), int(y))  # set the pen position
-                self.pen.pendown()
+                try:
+                    self.pen.penup()
+                    self.pen.goto(int(x), int(y))  # set the pen position
+                    self.pen.pendown()
+                except:
+                    raise PenMotionException(f"Couldn't set the pen position to ({x}, {y})")
+
             case 'pensize':
                 size = ctx.getChild(1).getText()  # get the pen size
-                if self.inFunction:
+                if len(self.scope) != 0:
                     v = self.checkIfIsIdentifier(size)
                     if v is not None:
                         size = v
-                self.pen.pensize(int(size))  # set the pen size
+                try:
+                    self.pen.pensize(int(size))  # set the pen size
+                except:
+                    raise PenMotionException(f"Couldn't set the pen size to {size}")
+
             case 'pencolor':
                 color = ctx.getChild(1).getText() # get the pen color
-                if self.inFunction:
+                if len(self.scope) != 0:
                     v = self.checkIfIsIdentifier(color)
                     if v is not None:
                         color = v
-                self.pen.pencolor(color.strip('"')) # set the pen color
+                try:
+                    self.pen.pencolor(color.strip('"')) # set the pen color
+                except:
+                    raise PenMotionException(f"Couldn't set the pen color to {color}")
+
             case 'penshape':
                 shape = ctx.getChild(1).getText() # get the pen shape
-                if self.inFunction:
+                if len(self.scope) != 0:
                     v = self.checkIfIsIdentifier(shape)
                     if v is not None:
                         shape = v
-                self.pen.shape(shape.strip('"'))  # set the pen shape
+                try:
+                    self.pen.shape(shape.strip('"'))  # set the pen shape
+                except:
+                    raise PenMotionException(f"Couldn't set the pen shape to {shape}")
+
             case 'penup':
                 self.pen.penup()  # lift the pen up
             case 'pendown':
@@ -141,7 +182,7 @@ class PenVisitor(PenMotionVisitor):
         x = ctx.getChild(1).getText() # get the x-coordinate
         y = ctx.getChild(2).getText() # get the y-coordinate
 
-        if self.inFunction:
+        if len(self.scope) != 0:
             v = self.checkIfIsIdentifier(x)
             if v is not None:
                 x = v
@@ -151,21 +192,25 @@ class PenVisitor(PenMotionVisitor):
 
         current_x = self.pen.xcor()  # get the current x-coordinate
         current_y = self.pen.ycor()  # get the current y-coordinate
-        self.pen.setpos(current_x + int(x), current_y + int(y))  # move the pen by y units vertically
+        try:
+            self.pen.setpos(current_x + int(x), current_y + int(y))  # move the pen by y units vertically
+        except:
+            raise PenMotionException(f"Couldn't move the pen by ({x}, {y})")
 
     # Visit a parse tree produced by PenMotionParser#repeat.
     def visitRepeat(self, ctx: PenMotionParser.RepeatContext):
         repetitions = ctx.getChild(1).getText() # get the number of repetitions
 
-        if self.inFunction:
+        if len(self.scope) != 0:
             v = self.checkIfIsIdentifier(repetitions)
             if v is not None:
                 repetitions = v
-
-        command = ctx.function_command()  # get the command to be repeated
-        for _ in range(int(repetitions)):  # repeat the command the specified number of times
-            self.visitChildren(command)
-
+        try:
+            command = ctx.function_command()  # get the command to be repeated
+            for _ in range(int(repetitions)):  # repeat the command the specified number of times
+                self.visitChildren(command)
+        except:
+            raise PenMotionException(f"Couldn't repeat the command {command} {repetitions} times")
 
     # Visit a parse tree produced by PenMotionParser#clear.
     def visitClear(self, ctx:PenMotionParser.ClearContext):

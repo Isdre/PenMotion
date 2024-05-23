@@ -16,6 +16,10 @@ funcS squareX x
 repeat -x call square
 funcE
 
-call squareX -10
+call squareX -2
+
+move 0 20
+
+call squareX -2
 
 save "test_1.png"
