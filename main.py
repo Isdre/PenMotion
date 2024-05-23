@@ -1,8 +1,8 @@
 import sys
 from antlr4 import *
 
-from PenMotion.definitions.PenMotionLexer import PenMotionLexer
-from PenMotion.definitions.PenMotionParser import PenMotionParser
+from PenMotion.definitions.antlr.PenMotionLexer import PenMotionLexer
+from PenMotion.definitions.antlr.PenMotionParser import PenMotionParser
 from PenMotion.definitions.PenVisitor import PenVisitor
 
 

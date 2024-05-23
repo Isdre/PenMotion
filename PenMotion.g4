@@ -5,25 +5,20 @@ program
     ;
 
 line
-    : command comment?
+    : (function|function_command) comment?
     | comment
     ;
 
-command
-    : function
-    | function_command
-    ;
-
 save
-    : 'save' (STRING|ID)
+    : 'save' (STRING|identifier)
     ;
 
 function
-    : 'funcS' ID function_args EOL function_block 'funcE'
+    : 'funcS' identifier function_args? EOL function_block 'funcE'
     ;
 
 function_args
-    : ID*
+    : (identifier', ')* identifier
     ;
 
 function_block
@@ -37,7 +32,6 @@ function_line
 
 function_command
     : set
-    | home
     | pagesize
     | move
     | call
@@ -47,32 +41,28 @@ function_command
     ;
 
 pagesize
-    : 'pagesize' INT INT
+    : 'pagesize' (int|identifier) (int|identifier)
     ;
 
 set
     : 'set' set_fun
     ;
 
-home
-    : 'home'
-    ;
-
 set_fun
-    : 'penposition' (INT|ID|ID_REVERSE) (INT|ID|ID_REVERSE)
-    | 'pensize' (INT|ID|ID_REVERSE)
-    | 'penshape' (STRING|ID)
-    | 'pencolor' (STRING|ID)
+    : 'penposition' (int|identifier) (int|identifier)
+    | 'pensize' (int|identifier)
+    | 'penshape' (STRING|identifier)
+    | 'pencolor' (STRING|identifier)
     | 'penup'
     | 'pendown'
     ;
 
 move
-    : 'move' (INT|ID|ID_REVERSE) (INT|ID|ID_REVERSE)
+    : 'move' (int|identifier) (int|identifier)
     ;
 
 repeat
-    : 'repeat' INT function_command
+    : 'repeat' int function_command
     ;
 
 clear
@@ -80,13 +70,12 @@ clear
     ;
 
 call
-    : 'call' ID call_arg*
+    : 'call' identifier call_arg*
     ;
 
 call_arg
-    : ID
-    | ID_REVERSE
-    | INT
+    : identifier
+    | int
     | STRING
     ;
 
@@ -94,12 +83,18 @@ comment
     : COMMENT
     ;
 
-ID_REVERSE
-    : '-' ID
+
+
+identifier
+    : '-'?ID
     ;
 
 ID
     : '_'? [a-zA-Z] [a-zA-Z0-9_\-]*
+    ;
+
+int
+    : INT
     ;
 
 INT
@@ -111,7 +106,7 @@ NUMBER
     ;
 
 STRING
-    : '"' (~('"'))* '"'
+    : '"'(~('"'))+'"'
     ;
 
 
