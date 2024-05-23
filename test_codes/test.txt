@@ -3,6 +3,7 @@ pagesize 507 575
 funcS background color
 set pencolor color
 set pensize 1000
+set penshape "square"
 move 507 0
 move 0 575
 move -507 0
@@ -13,7 +14,7 @@ call background "#ffe291"
 
 funcS square a, offset
 set pencolor "#ffaaff"
-set pensize 1
+set pensize 30
 move a 0
 move 0 a
 move -a 0
@@ -22,6 +23,8 @@ set penup
 move offset offset
 set pendown
 funcE
+
+clear
 
 call square 100 10
 

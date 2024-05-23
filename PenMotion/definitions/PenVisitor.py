@@ -10,19 +10,20 @@ from PenMotion.definitions.exceptions.exception import PenMotionException
 
 class PenVisitor(PenMotionVisitor):
     def __init__(self,):
-        self.pen = Turtle()
+        self.pen = Turtle(visible=False)
         sc = Screen()
         sc.mode('world')
         self.pen.hideturtle()
         self.pen.shapesize(stretch_wid=None, stretch_len=None, outline=None)
         self.pen.speed(0)
-        self.pen.penup()
-        self.pen.goto(-1, -1)
-        self.pen.pendown()
+        # self.pen.penup()
+        # self.pen.goto(-1, -1)
+        # self.pen.pendown()
         self.pen.getscreen().setworldcoordinates(0, 0, 300, 300)
         self.functions = {}
         self.arg_dict = {}
         self.scope = []
+        debug.log("Started the PenMotion interpreter")
 
     def checkIfIsIdentifier(self, identifier:str) -> bool:
         x = None
@@ -78,6 +79,7 @@ class PenVisitor(PenMotionVisitor):
         block = ctx.function_block() # get the function commands
         self.functions[function_name] = (function_args, block)  # store the function arguments and commands
         self.arg_dict[function_name] = None
+        debug.log(f'Created function {function_name}')
 
     # Visit a parse tree produced by PenMotionParser#call.
     def visitCall(self, ctx: PenMotionParser.CallContext):
@@ -93,6 +95,7 @@ class PenVisitor(PenMotionVisitor):
             self.visitChildren(block)  # visit the command with the argument value
             self.scope.pop(-1)
             self.arg_dict[function_name] = None
+            debug.log(f'Called function {function_name}')
         else:
             raise PenMotionException(ctx.start,f"Function '{function_name}' not defined")
 
