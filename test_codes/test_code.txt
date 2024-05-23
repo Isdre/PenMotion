@@ -14,12 +14,12 @@ funcE
 call background "#ffe291"
 
 funcS idk width, m, color
-set pencolor color
-set pensize 50
-move width -m
-move 0 m
-move -width -m
-repeat 2 move 0 m
+    set pencolor color
+    set pensize 50
+    move width -m
+    move 0 m
+    move -width -m
+    repeat 2 move 0 m
 funcE
 
 set penposition 0 50
@@ -31,4 +31,10 @@ repeat 6 call idk 507 100 "#87d5f0"
 set penposition 0 425
 repeat 6 call idk 507 -100 "#d0feda"
 
+set penposition 0 0
+set pencolor "#777777"
+move 507 0
+move 0 575
+move -507 0
+move 0 -575
 save "obraz.jpg"
