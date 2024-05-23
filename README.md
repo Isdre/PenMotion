@@ -5,8 +5,9 @@ PenMotion to projekt napisany w języku Python, który działa jako interpreter 
 ## Konfiguracja
 
 1. Sklonuj repozytorium PenMotion.
-2. Przejdź do folderu z projektem.
-3. Wygeneruj parser za pomocą komendy:
+2. Zaistaluj biblioteki z pliku requirements.txt
+3. Przejdź do folderu z projektem.
+4. Wygeneruj parser za pomocą komendy:
 ```bash
 antlr4 -Dlanguage=Python3 .\PenMotion.g4 -visitor -o PenMotion/definitions/antlr
 
