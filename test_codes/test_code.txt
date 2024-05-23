@@ -37,7 +37,7 @@ funcS rectangle a, b, color
     move -a 0
     move 0 -b
 
-    move color 0
+    move 10 0
 
     call square1010
 
