@@ -62,7 +62,7 @@ move
     ;
 
 repeat
-    : 'repeat' int function_command
+    : 'repeat' (int|identifier) function_command
     ;
 
 clear
