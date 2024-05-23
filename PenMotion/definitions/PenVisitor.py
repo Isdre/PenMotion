@@ -16,17 +16,14 @@ class PenVisitor(PenMotionVisitor):
         self.pen.getscreen().setworldcoordinates(0, 0, 800, 800)
         self.functions = {}
         self.arg_dict = {}
+        self.inFunction = False
 
-    # Override the visitChildren method to set the self.arg_dict attribute
-    def visitChildren(self, node):
-        result = self.defaultResult()
-        if node is None:
-            return result
-        for child in node.getChildren():
-            childResult = child.accept(self)
-            result = self.aggregateResult(result, childResult)
-        return result
-
+    def checkIfIsIdentifier(self, identifier:str) -> bool:
+        if identifier in self.arg_dict.keys():
+            return self.arg_dict[identifier]
+        elif identifier[1:] in self.arg_dict.keys() and identifier[0] == '-':
+            return str(-1 * int(self.arg_dict[identifier[1:]]))
+        return None
     # Visit a parse tree produced by PenMotionParser#program.
     def visitProgram(self, ctx:PenMotionParser.ProgramContext):
         return self.visitChildren(ctx)
@@ -34,14 +31,17 @@ class PenVisitor(PenMotionVisitor):
 
     # Visit a parse tree produced by PenMotionParser#line.
     def visitLine(self, ctx:PenMotionParser.LineContext):
+        self.inFunction = False
         return self.visitChildren(ctx)
 
     # Visit a parse tree produced by PenMotionParser#save.
     def visitSave(self, ctx: PenMotionParser.SaveContext):
         filename = ctx.getChild(1).getText()  # get the filename
         cv = self.pen.getscreen().getcanvas()  # get the turtle's canvas
-        if self.arg_dict is not None and filename in self.arg_dict.keys():
-            filename = self.arg_dict[filename]
+        if self.inFunction:
+            v = self.checkIfIsIdentifier(filename)
+            if v is not None:
+                filename = v
 
         # get the coordinates of the turtle window
         x = cv.winfo_rootx()
@@ -73,53 +73,22 @@ class PenVisitor(PenMotionVisitor):
                 arg.getText() if not isinstance(arg, PenMotionParser.IdentifierContext) else self.arg_dict[arg.getText()] for
                 arg in call_args_ctx]  # resolve the call arguments
             self.arg_dict = dict(zip(function_args, call_args))  # create a dictionary of argument values
+            self.inFunction = True
             self.visitChildren(block)  # visit the command with the argument values
-
-    # Visit a parse tree produced by PenMotionParser#function_args.
-    def visitFunction_args(self, ctx:PenMotionParser.Function_argsContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by PenMotionParser#function_block.
-    def visitFunction_block(self, ctx:PenMotionParser.Function_blockContext,arg_dict=None):
-        
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by PenMotionParser#function_line.
-    def visitFunction_line(self, ctx:PenMotionParser.Function_lineContext,arg_dict=None):
-        
-        return self.visitChildren(ctx)
-
-    # Visit a parse tree produced by PenMotionParser#function_command.
-    def visitFunction_command(self, ctx: PenMotionParser.Function_commandContext):
-        if ctx.set_():
-            return self.visitSet(ctx.set_())
-        elif ctx.pagesize():
-            return self.visitPagesize(ctx.pagesize(),)
-        elif ctx.move():
-            return self.visitMove(ctx.move())
-        elif ctx.call():
-            return self.visitCall(ctx.call())
-        elif ctx.save():
-            return self.visitSave(ctx.save())
-        elif ctx.repeat():
-            return self.visitRepeat(ctx.repeat())
-        elif ctx.clear():
-            return self.visitClear(ctx.clear())
-        return self.visitChildren(ctx)
-
 
     # Visit a parse tree produced by PenMotionParser#pagesize.
     def visitPagesize(self, ctx:PenMotionParser.PagesizeContext):
         width = ctx.getChild(1).getText()  # get the width
         height = ctx.getChild(2).getText()  # get the height
-        if self.arg_dict is not None and width in self.arg_dict.keys() and height in self.arg_dict.keys():  # if color is a function argument
-            width = self.arg_dict[width]
-            height = self.arg_dict[height]
+        if self.inFunction:
+            w = self.checkIfIsIdentifier(width)
+            h = self.checkIfIsIdentifier(height)
+            if w is not None:
+                width = w
+            if h is not None:
+                height = h
         self.pen.getscreen().screensize(int(width), int(height))
         self.pen.getscreen().setworldcoordinates(0, 0, int(width), int(height))
-        return self.visitChildren(ctx)
 
     # Visit a parse tree produced by PenMotionParser#set.
     def visitSet(self, ctx: PenMotionParser.SetContext):
@@ -131,61 +100,67 @@ class PenVisitor(PenMotionVisitor):
             case 'penposition':
                 x = ctx.getChild(1).getText() # get the x-coordinate
                 y = ctx.getChild(2).getText()  # get the y-coordinate
+                if self.inFunction:
+                    v = self.checkIfIsIdentifier(x)
+                    if v is not None:
+                        x = v
+                    v = self.checkIfIsIdentifier(y)
+                    if v is not None:
+                        y = v
                 self.pen.penup()
-                if self.arg_dict is not None and x in self.arg_dict.keys() and y in self.arg_dict.keys():  # if color is a function argument
-                    x = self.arg_dict[x]
-                    y = self.arg_dict[y]
                 self.pen.goto(int(x), int(y))  # set the pen position
                 self.pen.pendown()
             case 'pensize':
                 size = ctx.getChild(1).getText()  # get the pen size
-                if self.arg_dict is not None and size in self.arg_dict.keys():  # if color is a function argument
-                    size = self.arg_dict[size]
+                if self.inFunction:
+                    v = self.checkIfIsIdentifier(size)
+                    if v is not None:
+                        size = v
                 self.pen.pensize(int(size))  # set the pen size
             case 'pencolor':
                 color = ctx.getChild(1).getText() # get the pen color
-                if self.arg_dict is not None and color in self.arg_dict.keys():  # if color is a function argument
-                    color = self.arg_dict[color]  # resolve the function argument
+                if self.inFunction:
+                    v = self.checkIfIsIdentifier(color)
+                    if v is not None:
+                        color = v
                 self.pen.pencolor(color.strip('"')) # set the pen color
             case 'penshape':
                 shape = ctx.getChild(1).getText() # get the pen shape
-                if self.arg_dict is not None and shape in self.arg_dict.keys():  # if color is a function argument
-                    shape = self.arg_dict[shape]  # resolve the function argument
+                if self.inFunction:
+                    v = self.checkIfIsIdentifier(shape)
+                    if v is not None:
+                        shape = v
                 self.pen.shape(shape.strip('"'))  # set the pen shape
             case 'penup':
                 self.pen.penup()  # lift the pen up
             case 'pendown':
                 self.pen.pendown()  # put the pen down
-        return self.visitChildren(ctx)
 
     # Visit a parse tree produced by PenMotionParser#move.
     def visitMove(self, ctx: PenMotionParser.MoveContext):
         x = ctx.getChild(1).getText() # get the x-coordinate
         y = ctx.getChild(2).getText() # get the y-coordinate
 
-        if x in self.arg_dict.keys() or x[1:] in self.arg_dict.keys():
-            if x[0] == '-':
-                x = -1 * int(self.arg_dict[x[1:]])
-            else: x = self.arg_dict[x]
+        if self.inFunction:
+            v = self.checkIfIsIdentifier(x)
+            if v is not None:
+                x = v
+            v = self.checkIfIsIdentifier(y)
+            if v is not None:
+                y = v
 
-        if y in self.arg_dict.keys() or y[1:] in self.arg_dict.keys():
-            if y[0] == '-':
-                y = -1 * int(self.arg_dict[y[1:]])
-            else:
-                y = self.arg_dict[y]
         current_x = self.pen.xcor()  # get the current x-coordinate
         current_y = self.pen.ycor()  # get the current y-coordinate
         self.pen.setpos(current_x + int(x), current_y + int(y))  # move the pen by y units vertically
-        return self.visitChildren(ctx)
 
     # Visit a parse tree produced by PenMotionParser#repeat.
     def visitRepeat(self, ctx: PenMotionParser.RepeatContext):
         repetitions = ctx.getChild(1).getText() # get the number of repetitions
-        if repetitions in self.arg_dict.keys():
-            repetitions = self.arg_dict[repetitions]
 
-        if repetitions[1:] in self.arg_dict.keys():
-            repetitions = -1 * int(self.arg_dict[repetitions[1:]])
+        if self.inFunction:
+            v = self.checkIfIsIdentifier(repetitions)
+            if v is not None:
+                repetitions = v
 
         command = ctx.function_command()  # get the command to be repeated
         for _ in range(int(repetitions)):  # repeat the command the specified number of times
@@ -195,6 +170,24 @@ class PenVisitor(PenMotionVisitor):
     # Visit a parse tree produced by PenMotionParser#clear.
     def visitClear(self, ctx:PenMotionParser.ClearContext):
         self.pen.clear()
+
+
+    # Visit a parse tree produced by PenMotionParser#function_args.
+    def visitFunction_args(self, ctx:PenMotionParser.Function_argsContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PenMotionParser#function_block.
+    def visitFunction_block(self, ctx:PenMotionParser.Function_blockContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PenMotionParser#function_line.
+    def visitFunction_line(self, ctx:PenMotionParser.Function_lineContext):
+        return self.visitChildren(ctx)
+
+    # Visit a parse tree produced by PenMotionParser#function_command.
+    def visitFunction_command(self, ctx: PenMotionParser.Function_commandContext):
         return self.visitChildren(ctx)
 
     # Visit a parse tree produced by PenMotionParser#call_arg.

@@ -1,0 +1,29 @@
+pagesize 150 150
+set penposition 0 0 #sadsadasdasdas
+
+funcS square
+set pencolor "black"
+set pendown
+set pensize 5
+move 50 0
+move 0 50
+move -50 0
+move 0 -50#sadas
+#sdaads
+funcE
+
+
+repeat 2 call square
+
+funcS rectangle a, b, color
+set pencolor color
+set pendown
+move a 0
+move 0 b
+move -a 0
+move 0 -b
+funcE
+
+call rectangle 100 50 "red"
+
+save "test_0.png"

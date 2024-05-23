@@ -1,0 +1,21 @@
+pagesize 250 150
+set penposition 0 0 #sadsadasdasdas
+
+funcS square
+set pencolor "black"
+set pendown
+set pensize 5
+move 10 0
+move 0 10#sdaads
+move -10 0
+move 0 -10#sadas
+funcE
+
+
+funcS squareX x
+repeat -x call square
+funcE
+
+call squareX -10
+
+save "test_1.png"
