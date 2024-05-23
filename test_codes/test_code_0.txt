@@ -30,4 +30,4 @@ call rectangle 100 50 "red"
 
 
 
-save "test_0.png"
+save "test_0Dng"

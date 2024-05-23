@@ -1,10 +1,9 @@
 import sys
 from antlr4 import *
 
+from PenMotion.definitions.PenVisitor import PenVisitor
 from PenMotion.definitions.antlr.PenMotionLexer import PenMotionLexer
 from PenMotion.definitions.antlr.PenMotionParser import PenMotionParser
-from PenMotion.definitions.PenVisitor import PenVisitor
-
 
 
 #https://github.com/vLesio/logotoma/blob/master/main.py

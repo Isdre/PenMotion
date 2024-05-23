@@ -1,7 +1,7 @@
 pagesize 800 500
 
 # funkcja bez argumentow
-set pensize 60
+set pensize 30
     set penposition 60 70
 set penshape "circle"
 
@@ -13,7 +13,7 @@ set pendown
 move 0 10
 move -10 0
 move 0 -10
-funcS _s--quare1010
+funcS square1010
 set penshape "circle"
 set penshape "square"
 set penup
@@ -28,7 +28,7 @@ save "obraz.png"
 call square1010
 
 # funkcja z argumentami
-funcS rectangle a b color
+funcS rectangle a, b, color
     set pencolor color
     set pendown
     #sdsadsads
@@ -43,7 +43,16 @@ funcS rectangle a b color
 
 funcE
 
-set penposition x y
-repeat 20 call rectangle 30 30 "#FFFFFF"
+#set penposition x y
+repeat 20 call rectangle 30 30 "#00FF00"
+
+pagesize 100 500
+
+set penposition 0 0
+
+move 0 50
+
+repeat 10 call rectangle 30 30 "#FF00FF"
+
 
 save "obraz.jpg"

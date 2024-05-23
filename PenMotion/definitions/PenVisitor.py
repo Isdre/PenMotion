@@ -1,14 +1,12 @@
-import pyautogui
-import tkinter as tk
+from turtle import Screen
+from turtle import Turtle
 
+import pyautogui
 from PenMotion.definitions.antlr.PenMotionParser import PenMotionParser
 from PenMotion.definitions.antlr.PenMotionVisitor import PenMotionVisitor
 from PenMotion.definitions.debugger import debug
 from PenMotion.definitions.exceptions.exception import PenMotionException
-import os
 
-from turtle import Turtle
-from turtle import Screen
 
 class PenVisitor(PenMotionVisitor):
     def __init__(self,):
@@ -69,7 +67,7 @@ class PenVisitor(PenMotionVisitor):
             img.save(filename.strip('"'))  # replace with '.jpg' for JPG format
             debug.log(f"Saved as {filename}")
         except Exception as e:
-            raise PenMotionException(f"Error saving the file: {e}")
+            raise PenMotionException(ctx.start,f"Error saving the file: {e}")
 
 
     # Visit a parse tree produced by PenMotionParser#function.
@@ -96,7 +94,7 @@ class PenVisitor(PenMotionVisitor):
             self.scope.pop(-1)
             self.arg_dict[function_name] = None
         else:
-            raise PenMotionException(f"Function '{function_name}' not defined")
+            raise PenMotionException(ctx.start,f"Function '{function_name}' not defined")
 
     # Visit a parse tree produced by PenMotionParser#pagesize.
     def visitPagesize(self, ctx:PenMotionParser.PagesizeContext):
@@ -112,8 +110,9 @@ class PenVisitor(PenMotionVisitor):
         try:
             self.pen.getscreen().screensize(int(width), int(height))
             self.pen.getscreen().setworldcoordinates(0, 0, int(width), int(height))
+            debug.log(f"Set the page size to {width} x {height}")
         except:
-            raise PenMotionException(f"Couldn't set the page size to {width} x {height}")
+            raise PenMotionException(ctx.start,f"Couldn't set the page size to {width} x {height}")
 
     # Visit a parse tree produced by PenMotionParser#set.
     def visitSet(self, ctx: PenMotionParser.SetContext):
@@ -137,7 +136,7 @@ class PenVisitor(PenMotionVisitor):
                     self.pen.goto(int(x), int(y))  # set the pen position
                     self.pen.pendown()
                 except:
-                    raise PenMotionException(f"Couldn't set the pen position to ({x}, {y})")
+                    raise PenMotionException(ctx.start,f"Couldn't set the pen position to ({x}, {y})")
 
             case 'pensize':
                 size = ctx.getChild(1).getText()  # get the pen size
@@ -148,7 +147,7 @@ class PenVisitor(PenMotionVisitor):
                 try:
                     self.pen.pensize(int(size))  # set the pen size
                 except:
-                    raise PenMotionException(f"Couldn't set the pen size to {size}")
+                    raise PenMotionException(ctx.start,f"Couldn't set the pen size to {size}")
 
             case 'pencolor':
                 color = ctx.getChild(1).getText() # get the pen color
@@ -159,7 +158,7 @@ class PenVisitor(PenMotionVisitor):
                 try:
                     self.pen.pencolor(color.strip('"')) # set the pen color
                 except:
-                    raise PenMotionException(f"Couldn't set the pen color to {color}")
+                    raise PenMotionException(ctx.start,f"Couldn't set the pen color to {color}")
 
             case 'penshape':
                 shape = ctx.getChild(1).getText() # get the pen shape
@@ -170,7 +169,7 @@ class PenVisitor(PenMotionVisitor):
                 try:
                     self.pen.shape(shape.strip('"'))  # set the pen shape
                 except:
-                    raise PenMotionException(f"Couldn't set the pen shape to {shape}")
+                    raise PenMotionException(ctx.start,f"Couldn't set the pen shape to {shape}")
 
             case 'penup':
                 self.pen.penup()  # lift the pen up
@@ -195,7 +194,7 @@ class PenVisitor(PenMotionVisitor):
         try:
             self.pen.setpos(current_x + int(x), current_y + int(y))  # move the pen by y units vertically
         except:
-            raise PenMotionException(f"Couldn't move the pen by ({x}, {y})")
+            raise PenMotionException(ctx.start,f"Couldn't move the pen by ({x}, {y})")
 
     # Visit a parse tree produced by PenMotionParser#repeat.
     def visitRepeat(self, ctx: PenMotionParser.RepeatContext):
@@ -210,7 +209,7 @@ class PenVisitor(PenMotionVisitor):
             for _ in range(int(repetitions)):  # repeat the command the specified number of times
                 self.visitChildren(command)
         except:
-            raise PenMotionException(f"Couldn't repeat the command {command} {repetitions} times")
+            raise PenMotionException(ctx.start,f"Couldn't repeat the command {command} {repetitions} times")
 
     # Visit a parse tree produced by PenMotionParser#clear.
     def visitClear(self, ctx:PenMotionParser.ClearContext):
