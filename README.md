@@ -28,6 +28,7 @@ python penmotion.py [nazwa_pliku]
 - Powtarzanie instrukcji (repeat).
 - Wyczyszczenie ekranu.
 - Funkcje bez i z argumentami.
+- komentarze
 
 ## Przykładowe kody
 
