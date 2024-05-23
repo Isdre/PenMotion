@@ -1,58 +1,34 @@
-pagesize 800 500
+pagesize 507 575
 
-# funkcja bez argumentow
-set pensize 30
-    set penposition 60 70
-set penshape "circle"
-
-
+funcS background color
+set pencolor color
+set pensize 1000
 set penshape "square"
-set penup
-set pendown
-    move 10 0
-move 0 10
-move -10 0
-move 0 -10
-funcS square1010
-set penshape "circle"
-set penshape "square"
-set penup
-set pendown
-move 10 0
-move 0 10
-move -10 0
-move 0 -10
+move 507 0
+move 0 575
+move -507 0
+move 0 -575
+set pensize 1
 funcE
 
-save "obraz.png"
-call square1010
+call background "#ffe291"
 
-# funkcja z argumentami
-funcS rectangle a, b, color
-    set pencolor color
-    set pendown
-    #sdsadsads
-    move a 0
-    move 0 b
-    move -a 0
-    move 0 -b
-
-    move 10 0
-
-    call square1010
-
+funcS idk width, m, color
+set pencolor color
+set pensize 50
+move width -m
+move 0 m
+move -width -m
+repeat 2 move 0 m
 funcE
 
-#set penposition x y
-repeat 20 call rectangle 30 30 "#00FF00"
-
-pagesize 100 500
-
-set penposition 0 0
-
-move 0 50
-
-repeat 10 call rectangle 30 30 "#FF00FF"
-
+set penposition 0 50
+repeat 6 call idk 507 100 "#87d53e"
+set penposition 0 475
+repeat 6 call idk 507 -100 "#d32eda"
+set penposition 0 100
+repeat 6 call idk 507 100 "#87d5f0"
+set penposition 0 425
+repeat 6 call idk 507 -100 "#d0feda"
 
 save "obraz.jpg"
