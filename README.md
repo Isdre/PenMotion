@@ -1,6 +1,7 @@
 # PenMotion
 
-PenMotion to projekt napisany w języku Python, który działa jako interpreter rysunków wykonanych przez przesunięcia długopisu. Poniżej znajdziesz informacje na temat konfiguracji, dostępnych funkcji i sposobu użycia.
+PenMotion to projekt napisany w języku Python, który działa jako interpreter rysunków wykonanych przez przesunięcia długopisu. Korzystałem z generatora parserów antlr4. 
+Poniżej znajdziesz informacje na temat konfiguracji, dostępnych funkcji i sposobu użycia.
 
 ## Konfiguracja
 
